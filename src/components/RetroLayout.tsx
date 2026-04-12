@@ -5,21 +5,23 @@ import {
   Gamepad2, FolderOpen, Settings, Monitor
 } from 'lucide-react';
 import { CRTToggle, useCrt } from './CRTToggle';
+import { useAdmin } from '@/hooks/useAdmin';
 
 const NAV_ITEMS = [
-  { title: 'Dashboard', path: '/', icon: LayoutDashboard },
-  { title: 'Upload', path: '/upload', icon: Upload },
-  { title: 'Library', path: '/library', icon: Library },
-  { title: 'Duplicates', path: '/duplicates', icon: Copy },
-  { title: 'Review', path: '/review', icon: AlertTriangle },
-  { title: 'Consoles', path: '/consoles', icon: Gamepad2 },
-  { title: 'Explorer', path: '/explorer', icon: FolderOpen },
-  { title: 'Settings', path: '/settings', icon: Settings },
+  { title: 'Dashboard', path: '/', icon: LayoutDashboard, adminOnly: false },
+  { title: 'Upload', path: '/upload', icon: Upload, adminOnly: false },
+  { title: 'Library', path: '/library', icon: Library, adminOnly: false },
+  { title: 'Duplicates', path: '/duplicates', icon: Copy, adminOnly: false },
+  { title: 'Review', path: '/review', icon: AlertTriangle, adminOnly: false },
+  { title: 'Consoles', path: '/consoles', icon: Gamepad2, adminOnly: false },
+  { title: 'Explorer', path: '/explorer', icon: FolderOpen, adminOnly: false },
+  { title: 'Settings', path: '/settings', icon: Settings, adminOnly: true },
 ];
 
 export function RetroLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const crtEnabled = useCrt();
+  const isAdmin = useAdmin();
 
   return (
     <div className={`flex min-h-screen w-full ${crtEnabled ? 'crt-effect' : ''}`}>
@@ -33,7 +35,7 @@ export function RetroLayout({ children }: { children: ReactNode }) {
         </div>
 
         <nav className="flex-1 py-2">
-          {NAV_ITEMS.map((item) => {
+          {NAV_ITEMS.filter(item => !item.adminOnly || isAdmin).map((item) => {
             const active = location.pathname === item.path;
             return (
               <Link

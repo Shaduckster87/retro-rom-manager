@@ -1,8 +1,24 @@
 import { CONSOLES } from '@/data/mockData';
 import { ExtensionBadge } from '@/components/ExtensionBadge';
+import { useAdmin } from '@/hooks/useAdmin';
+import { ShieldAlert } from 'lucide-react';
 
 export default function SettingsPage() {
+  const isAdmin = useAdmin();
   const allExtensions = [...new Set(CONSOLES.flatMap(c => c.extensions))].sort();
+
+  if (!isAdmin) {
+    return (
+      <div className="space-y-6">
+        <h1 className="font-pixel text-sm text-primary glow-green">⚙ SETTINGS</h1>
+        <div className="pixel-border bg-card p-12 text-center space-y-3">
+          <ShieldAlert className="w-8 h-8 text-destructive mx-auto" />
+          <p className="font-pixel text-[10px] text-destructive">ACCESS DENIED</p>
+          <p className="font-retro text-sm text-muted-foreground">Only administrators can view system settings.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
