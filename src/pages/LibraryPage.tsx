@@ -73,6 +73,12 @@ export default function LibraryPage() {
               {rom.console && <span className="font-pixel text-[8px] text-retro-cyan">{rom.console}</span>}
               <ExtensionBadge ext={rom.file_extension} />
             </div>
+            {(rom.region || rom.language) && (
+              <div className="flex items-center gap-2 mb-2 text-xs font-mono text-muted-foreground">
+                {rom.region && <span className="text-retro-amber">{rom.region}</span>}
+                {rom.language && <span className="text-retro-magenta">{rom.language}</span>}
+              </div>
+            )}
             <div className="flex items-center justify-between text-xs font-mono text-muted-foreground">
               <span>{formatFileSize(rom.file_size)}</span>
               <span>{rom.upload_date}</span>

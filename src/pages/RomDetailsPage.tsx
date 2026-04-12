@@ -1,14 +1,17 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_ROMS, formatFileSize } from '@/data/mockData';
 import { StatusBadge } from '@/components/StatusBadge';
 import { ExtensionBadge } from '@/components/ExtensionBadge';
-import { ArrowLeft, Copy, Download, Trash2, FolderInput, Star } from 'lucide-react';
+import { ArrowLeft, Copy, Download, Trash2, FolderInput, Star, Pencil, Check, X, Globe, Languages } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function RomDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const rom = MOCK_ROMS.find(r => r.id === id);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [newFilename, setNewFilename] = useState('');
 
   if (!rom) {
     return (
@@ -28,6 +31,18 @@ export default function RomDetailsPage() {
     toast.success('Hash copied to clipboard!');
   };
 
+  const startRename = () => {
+    setNewFilename(rom.filename);
+    setIsRenaming(true);
+  };
+
+  const confirmRename = () => {
+    if (newFilename.trim() && newFilename !== rom.filename) {
+      toast.success(`Renamed to "${newFilename}"`);
+    }
+    setIsRenaming(false);
+  };
+
   return (
     <div className="space-y-6">
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 font-retro text-sm text-muted-foreground hover:text-primary">
@@ -44,7 +59,25 @@ export default function RomDetailsPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="font-pixel text-[8px] text-muted-foreground">FILENAME</label>
-            <p className="font-mono text-sm text-foreground">{rom.filename}</p>
+            {isRenaming ? (
+              <div className="flex items-center gap-2 mt-1">
+                <input
+                  type="text"
+                  value={newFilename}
+                  onChange={e => setNewFilename(e.target.value)}
+                  className="flex-1 bg-background border border-primary px-2 py-1 font-mono text-sm text-foreground focus:outline-none"
+                  autoFocus
+                  onKeyDown={e => e.key === 'Enter' && confirmRename()}
+                />
+                <button onClick={confirmRename} className="p-1 text-primary hover:text-primary/80"><Check className="w-4 h-4" /></button>
+                <button onClick={() => setIsRenaming(false)} className="p-1 text-destructive hover:text-destructive/80"><X className="w-4 h-4" /></button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <p className="font-mono text-sm text-foreground">{rom.filename}</p>
+                <button onClick={startRename} className="p-1 text-muted-foreground hover:text-primary"><Pencil className="w-3 h-3" /></button>
+              </div>
+            )}
           </div>
           <div>
             <label className="font-pixel text-[8px] text-muted-foreground">CONSOLE</label>
@@ -65,6 +98,14 @@ export default function RomDetailsPage() {
           <div>
             <label className="font-pixel text-[8px] text-muted-foreground">STORAGE PATH</label>
             <p className="font-mono text-sm text-retro-amber">{rom.storage_path}</p>
+          </div>
+          <div>
+            <label className="font-pixel text-[8px] text-muted-foreground flex items-center gap-1"><Globe className="w-3 h-3" /> REGION</label>
+            <p className="font-retro text-sm text-retro-cyan">{rom.region || 'Unknown'}</p>
+          </div>
+          <div>
+            <label className="font-pixel text-[8px] text-muted-foreground flex items-center gap-1"><Languages className="w-3 h-3" /> LANGUAGE</label>
+            <p className="font-retro text-sm text-retro-cyan">{rom.language || 'Unknown'}</p>
           </div>
         </div>
 
@@ -97,7 +138,11 @@ export default function RomDetailsPage() {
               >
                 <div>
                   <p className="font-mono text-sm text-foreground">{dup.filename}</p>
-                  <p className="font-mono text-xs text-muted-foreground">{formatFileSize(dup.file_size)} · {dup.upload_date}</p>
+                  <p className="font-mono text-xs text-muted-foreground">
+                    {formatFileSize(dup.file_size)} · {dup.upload_date}
+                    {dup.region && <span> · {dup.region}</span>}
+                    {dup.language && <span> · {dup.language}</span>}
+                  </p>
                 </div>
                 <StatusBadge status={dup.status} />
               </div>
@@ -112,6 +157,9 @@ export default function RomDetailsPage() {
         <div className="flex flex-wrap gap-3">
           <button className="flex items-center gap-2 px-4 py-2 border border-primary text-primary font-retro text-sm hover:bg-primary/10">
             <Download className="w-4 h-4" /> Download
+          </button>
+          <button onClick={startRename} className="flex items-center gap-2 px-4 py-2 border border-retro-cyan text-retro-cyan font-retro text-sm hover:bg-retro-cyan/10">
+            <Pencil className="w-4 h-4" /> Rename
           </button>
           <button className="flex items-center gap-2 px-4 py-2 border border-retro-amber text-retro-amber font-retro text-sm hover:bg-retro-amber/10">
             <FolderInput className="w-4 h-4" /> Move to Folder
