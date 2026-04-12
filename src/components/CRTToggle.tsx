@@ -1,5 +1,4 @@
 import { Monitor } from 'lucide-react';
-import { create } from 'zustand';
 
 // Simple store for CRT toggle - no zustand needed, use context-free approach
 let listeners: Array<() => void> = [];

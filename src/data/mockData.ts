@@ -116,6 +116,6 @@ export function getStatusLabel(status: RomStatus): string {
     case 'uploading': return 'UPLOADING';
     case 'hashing': return 'HASHING';
     case 'processing': return 'PROCESSING';
-    default: return status.toUpperCase();
+    default: return String(status).toUpperCase();
   }
 }
