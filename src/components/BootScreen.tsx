@@ -13,40 +13,36 @@ const BOOT_LINES = [
   'SHA256 duplicate detection.......... ENABLED',
   '',
   'SYSTEM READY.',
-  '',
-  '> PRESS ANY KEY TO CONTINUE_',
 ];
 
 export function BootScreen({ onComplete }: { onComplete: () => void }) {
   const [visibleLines, setVisibleLines] = useState(0);
-  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     if (visibleLines < BOOT_LINES.length) {
       const timer = setTimeout(() => setVisibleLines(v => v + 1), 120);
       return () => clearTimeout(timer);
+    } else {
+      // Auto-redirect after boot sequence completes
+      const timer = setTimeout(onComplete, 800);
+      return () => clearTimeout(timer);
     }
-  }, [visibleLines]);
-
-  useEffect(() => {
-    const handler = () => {
-      if (visibleLines >= BOOT_LINES.length) {
-        setDismissed(true);
-        setTimeout(onComplete, 300);
-      } else {
-        setVisibleLines(BOOT_LINES.length);
-      }
-    };
-    window.addEventListener('keydown', handler);
-    window.addEventListener('click', handler);
-    return () => {
-      window.removeEventListener('keydown', handler);
-      window.removeEventListener('click', handler);
-    };
   }, [visibleLines, onComplete]);
 
+  // Allow skipping by clicking
+  const handleSkip = () => {
+    if (visibleLines >= BOOT_LINES.length) {
+      onComplete();
+    } else {
+      setVisibleLines(BOOT_LINES.length);
+    }
+  };
+
   return (
-    <div className={`fixed inset-0 z-[10000] bg-background flex items-center justify-center transition-opacity duration-300 ${dismissed ? 'opacity-0' : 'opacity-100'}`}>
+    <div
+      className="fixed inset-0 z-[10000] bg-background flex items-center justify-center cursor-pointer"
+      onClick={handleSkip}
+    >
       <div className="max-w-2xl w-full px-8">
         <pre className="font-retro text-primary text-lg leading-relaxed glow-green">
           {BOOT_LINES.slice(0, visibleLines).map((line, i) => (
@@ -57,6 +53,9 @@ export function BootScreen({ onComplete }: { onComplete: () => void }) {
               )}
             </div>
           ))}
+          {visibleLines >= BOOT_LINES.length && (
+            <div className="mt-2 animate-blink">{'>'} LOADING INTERFACE...█</div>
+          )}
         </pre>
       </div>
     </div>
