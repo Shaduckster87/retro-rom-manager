@@ -1,8 +1,16 @@
+import { useRomPackages } from '@/hooks/useRomPackages';
 import { CONSOLES } from '@/data/mockData';
 import { ExtensionBadge } from '@/components/ExtensionBadge';
 
 export default function ConsolesPage() {
+  const { data: packages = [] } = useRomPackages();
   const manufacturers = [...new Set(CONSOLES.map(c => c.manufacturer))];
+
+  // Count ROMs per console from DB
+  const consoleCounts = packages.reduce((acc, r) => {
+    if (r.console) acc[r.console] = (acc[r.console] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
 
   return (
     <div className="space-y-6">
@@ -18,7 +26,7 @@ export default function ConsolesPage() {
                   <span className="text-2xl">{console.icon}</span>
                   <div>
                     <h3 className="font-retro text-lg text-foreground">{console.name}</h3>
-                    <span className="font-pixel text-[8px] text-primary">{console.romCount} ROMs</span>
+                    <span className="font-pixel text-[8px] text-primary">{consoleCounts[console.name] || 0} ROMs</span>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-1">

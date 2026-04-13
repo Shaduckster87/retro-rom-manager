@@ -1,12 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Upload as UploadIcon, X } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Upload as UploadIcon, X, FolderUp } from 'lucide-react';
 import { RomStatus } from '@/data/mockData';
 import { StatusBadge } from '@/components/StatusBadge';
 import { ExtensionBadge } from '@/components/ExtensionBadge';
+import { PackageTypeBadge } from '@/components/PackageTypeBadge';
 
 interface UploadQueueItem {
   id: string;
-  filename: string;
+  packageName: string;
+  type: 'file' | 'folder';
+  fileCount: number;
   extension: string;
   size: number;
   status: RomStatus;
@@ -15,22 +18,24 @@ interface UploadQueueItem {
 }
 
 const SIMULATED_FILES = [
-  { name: 'Mario_Kart_64.z64', size: 12582912 },
-  { name: 'Zelda_OoT.n64', size: 33554432 },
-  { name: 'Contra.nes', size: 131088 },
-  { name: 'unknown_backup.bin', size: 524288 },
-  { name: 'Sonic_the_Hedgehog.md', size: 524288 },
+  { name: 'Mario_Kart_64.z64', size: 12582912, type: 'file' as const, fileCount: 1 },
+  { name: 'Zelda_OoT.n64', size: 33554432, type: 'file' as const, fileCount: 1 },
+  { name: 'Contra.nes', size: 131088, type: 'file' as const, fileCount: 1 },
+  { name: 'Final_Fantasy_VII', size: 734003200, type: 'folder' as const, fileCount: 4 },
+  { name: 'unknown_backup.bin', size: 524288, type: 'file' as const, fileCount: 1 },
 ];
 
 export default function UploadPage() {
   const [queue, setQueue] = useState<UploadQueueItem[]>([]);
   const [dragOver, setDragOver] = useState(false);
 
-  const simulateUpload = useCallback((files: Array<{ name: string; size: number }>) => {
+  const simulateUpload = useCallback((files: typeof SIMULATED_FILES) => {
     const newItems: UploadQueueItem[] = files.map((f, i) => ({
       id: `upload-${Date.now()}-${i}`,
-      filename: f.name,
-      extension: '.' + f.name.split('.').pop(),
+      packageName: f.name,
+      type: f.type,
+      fileCount: f.fileCount,
+      extension: f.type === 'file' ? '.' + f.name.split('.').pop() : '',
       size: f.size,
       status: 'uploading' as RomStatus,
       progress: 0,
@@ -38,11 +43,8 @@ export default function UploadPage() {
 
     setQueue(prev => [...prev, ...newItems]);
 
-    // Simulate progression for each item
     newItems.forEach((item, index) => {
       const delay = index * 500;
-
-      // Uploading phase
       const uploadSteps = [20, 40, 60, 80, 100];
       uploadSteps.forEach((p, stepI) => {
         setTimeout(() => {
@@ -50,7 +52,6 @@ export default function UploadPage() {
         }, delay + stepI * 200);
       });
 
-      // Hashing phase
       setTimeout(() => {
         setQueue(prev => prev.map(q => q.id === item.id ? { ...q, status: 'hashing', progress: 0 } : q));
       }, delay + 1200);
@@ -61,15 +62,13 @@ export default function UploadPage() {
         }, delay + 1200 + stepI * 300);
       });
 
-      // Processing phase
       setTimeout(() => {
         setQueue(prev => prev.map(q => q.id === item.id ? { ...q, status: 'processing', progress: 50 } : q));
       }, delay + 2400);
 
-      // Result
       setTimeout(() => {
-        const isDuplicate = item.filename.includes('Sonic');
-        const isUnknown = item.filename.includes('unknown');
+        const isUnknown = item.packageName.includes('unknown');
+        const isDuplicate = item.packageName.includes('Contra');
         const result = isDuplicate ? 'duplicate' : isUnknown ? 'unsorted' : 'sorted';
         setQueue(prev => prev.map(q => q.id === item.id ? { ...q, status: result, progress: 100, result } : q));
       }, delay + 3200);
@@ -79,31 +78,30 @@ export default function UploadPage() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    // Simulate with predefined files
     simulateUpload(SIMULATED_FILES.slice(0, 3));
-  };
-
-  const handleAddDemo = () => {
-    simulateUpload(SIMULATED_FILES);
   };
 
   return (
     <div className="space-y-6">
-      <h1 className="font-pixel text-sm text-primary glow-green">UPLOAD ROMS</h1>
+      <h1 className="font-pixel text-sm text-primary glow-green">UPLOAD ROM PACKAGES</h1>
 
       {/* Drop Zone */}
       <div
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
-        onClick={handleAddDemo}
+        onClick={() => simulateUpload(SIMULATED_FILES)}
         className={`pixel-border bg-card p-12 flex flex-col items-center justify-center cursor-pointer transition-colors ${
           dragOver ? 'border-primary bg-primary/10' : 'hover:bg-muted/50'
         }`}
       >
-        <UploadIcon className={`w-12 h-12 mb-4 ${dragOver ? 'text-primary animate-pixel-pulse' : 'text-muted-foreground'}`} />
-        <p className="font-pixel text-[10px] text-foreground mb-2">DROP ROM FILES HERE</p>
-        <p className="font-retro text-sm text-muted-foreground">or click to simulate upload demo</p>
+        <div className="flex gap-4 mb-4">
+          <UploadIcon className={`w-12 h-12 ${dragOver ? 'text-primary animate-pixel-pulse' : 'text-muted-foreground'}`} />
+          <FolderUp className={`w-12 h-12 ${dragOver ? 'text-retro-magenta animate-pixel-pulse' : 'text-muted-foreground'}`} />
+        </div>
+        <p className="font-pixel text-[10px] text-foreground mb-2">DROP FILES OR FOLDERS HERE</p>
+        <p className="font-retro text-sm text-muted-foreground">Single files → FILE ROM · Folders → FOLDER PACKAGE</p>
+        <p className="font-retro text-sm text-muted-foreground mt-1">Click to simulate upload demo</p>
         <p className="font-mono text-xs text-muted-foreground mt-2">.nes .sfc .gb .gba .n64 .md .iso .bin .zip +more</p>
       </div>
 
@@ -125,25 +123,21 @@ export default function UploadPage() {
               } bg-background`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-retro text-sm text-foreground">{item.filename}</span>
-                    <ExtensionBadge ext={item.extension} />
+                    <span className="font-retro text-sm text-foreground">{item.packageName}</span>
+                    <PackageTypeBadge type={item.type} totalFiles={item.fileCount} />
+                    {item.extension && <ExtensionBadge ext={item.extension} />}
                   </div>
                   <StatusBadge status={item.status} />
                 </div>
 
-                {/* Progress bar */}
                 <div className="retro-progress">
-                  <div
-                    className={`retro-progress-fill ${
-                      item.status === 'hashing' ? '!bg-retro-magenta' :
-                      item.status === 'duplicate' ? '!bg-destructive' :
-                      item.status === 'unsorted' ? '!bg-retro-amber' : ''
-                    }`}
-                    style={{ width: `${item.progress}%` }}
-                  />
+                  <div className={`retro-progress-fill ${
+                    item.status === 'hashing' ? '!bg-retro-magenta' :
+                    item.status === 'duplicate' ? '!bg-destructive' :
+                    item.status === 'unsorted' ? '!bg-retro-amber' : ''
+                  }`} style={{ width: `${item.progress}%` }} />
                 </div>
 
-                {/* Step indicator */}
                 <div className="flex items-center gap-4 mt-2 font-retro text-xs">
                   <span className={item.status === 'uploading' ? 'text-retro-cyan' : 'text-muted-foreground'}>
                     {item.status === 'uploading' ? '▶' : '✓'} Upload
