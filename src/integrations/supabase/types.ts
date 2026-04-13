@@ -14,16 +14,178 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      package_files: {
+        Row: {
+          created_at: string
+          file_extension: string | null
+          file_path: string
+          file_size: number
+          filename: string
+          id: string
+          package_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_extension?: string | null
+          file_path: string
+          file_size?: number
+          filename: string
+          id?: string
+          package_id: string
+        }
+        Update: {
+          created_at?: string
+          file_extension?: string | null
+          file_path?: string
+          file_size?: number
+          filename?: string
+          id?: string
+          package_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_files_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "rom_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rom_packages: {
+        Row: {
+          console: string | null
+          created_at: string
+          detection_source: string | null
+          duplicate_group_id: string | null
+          file_extension: string | null
+          file_size: number
+          file_tree: Json | null
+          filename: string
+          hash_sha256: string | null
+          id: string
+          language: string | null
+          package_type: Database["public"]["Enums"]["package_type"]
+          region: string | null
+          status: Database["public"]["Enums"]["rom_status"]
+          storage_path: string
+          title: string
+          total_files: number
+          updated_at: string
+          upload_date: string
+        }
+        Insert: {
+          console?: string | null
+          created_at?: string
+          detection_source?: string | null
+          duplicate_group_id?: string | null
+          file_extension?: string | null
+          file_size?: number
+          file_tree?: Json | null
+          filename: string
+          hash_sha256?: string | null
+          id?: string
+          language?: string | null
+          package_type?: Database["public"]["Enums"]["package_type"]
+          region?: string | null
+          status?: Database["public"]["Enums"]["rom_status"]
+          storage_path: string
+          title: string
+          total_files?: number
+          updated_at?: string
+          upload_date?: string
+        }
+        Update: {
+          console?: string | null
+          created_at?: string
+          detection_source?: string | null
+          duplicate_group_id?: string | null
+          file_extension?: string | null
+          file_size?: number
+          file_tree?: Json | null
+          filename?: string
+          hash_sha256?: string | null
+          id?: string
+          language?: string | null
+          package_type?: Database["public"]["Enums"]["package_type"]
+          region?: string | null
+          status?: Database["public"]["Enums"]["rom_status"]
+          storage_path?: string
+          title?: string
+          total_files?: number
+          updated_at?: string
+          upload_date?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      package_type: "file" | "folder"
+      rom_status:
+        | "uploading"
+        | "hashing"
+        | "processing"
+        | "sorted"
+        | "duplicate"
+        | "unsorted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +312,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      package_type: ["file", "folder"],
+      rom_status: [
+        "uploading",
+        "hashing",
+        "processing",
+        "sorted",
+        "duplicate",
+        "unsorted",
+      ],
+    },
   },
 } as const
