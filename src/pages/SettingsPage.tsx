@@ -1,10 +1,10 @@
 import { CONSOLES } from '@/data/mockData';
 import { ExtensionBadge } from '@/components/ExtensionBadge';
-import { useAdmin } from '@/hooks/useAdmin';
+import { useAuth } from '@/hooks/useAuth';
 import { ShieldAlert } from 'lucide-react';
 
 export default function SettingsPage() {
-  const isAdmin = useAdmin();
+  const { isAdmin } = useAuth();
   const allExtensions = [...new Set(CONSOLES.flatMap(c => c.extensions))].sort();
 
   if (!isAdmin) {
@@ -25,7 +25,6 @@ export default function SettingsPage() {
       <h1 className="font-pixel text-sm text-primary glow-green">⚙ SETTINGS</h1>
 
       <div className="space-y-4">
-        {/* Duplicate Detection */}
         <div className="pixel-border bg-card p-4">
           <h2 className="font-pixel text-[10px] text-primary mb-3">DUPLICATE DETECTION</h2>
           <div className="space-y-3">
@@ -35,16 +34,19 @@ export default function SettingsPage() {
             </div>
             <div className="flex items-center justify-between">
               <span className="font-retro text-sm text-foreground">Hash Algorithm</span>
-              <span className="font-mono text-sm text-retro-cyan">SHA256</span>
+              <span className="font-mono text-sm text-retro-cyan">SHA256 (Full Package)</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="font-retro text-sm text-foreground">Auto-detect on upload</span>
               <span className="font-pixel text-[10px] text-primary">YES</span>
             </div>
+            <div className="flex items-center justify-between">
+              <span className="font-retro text-sm text-foreground">Package Support</span>
+              <span className="font-pixel text-[10px] text-primary">FILE + FOLDER</span>
+            </div>
           </div>
         </div>
 
-        {/* Storage Paths */}
         <div className="pixel-border bg-card p-4">
           <h2 className="font-pixel text-[10px] text-primary mb-3">STORAGE PATHS</h2>
           <div className="space-y-2">
@@ -57,7 +59,6 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Allowed Extensions */}
         <div className="pixel-border bg-card p-4">
           <h2 className="font-pixel text-[10px] text-primary mb-3">ALLOWED EXTENSIONS</h2>
           <div className="flex flex-wrap gap-2">
@@ -67,7 +68,6 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Display */}
         <div className="pixel-border bg-card p-4">
           <h2 className="font-pixel text-[10px] text-primary mb-3">DISPLAY</h2>
           <div className="space-y-3">
@@ -78,14 +78,6 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <span className="font-retro text-sm text-foreground">Boot Screen</span>
               <span className="font-pixel text-[10px] text-primary">ENABLED</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="font-retro text-sm text-foreground">Pixel Animations</span>
-              <span className="font-pixel text-[10px] text-primary">ENABLED</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="font-retro text-sm text-foreground">Sound Effects</span>
-              <span className="font-pixel text-[10px] text-muted-foreground">OFF</span>
             </div>
           </div>
         </div>
