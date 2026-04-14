@@ -1,7 +1,7 @@
 import { useRomPackages } from '@/hooks/useRomPackages';
 import { formatFileSize } from '@/data/mockData';
 import { StatusBadge } from '@/components/StatusBadge';
-import { CONSOLES } from '@/data/mockData';
+import { PixelCharacter } from '@/components/PixelCharacter';
 
 export default function Dashboard() {
   const { data: packages = [], isLoading } = useRomPackages();
@@ -22,10 +22,10 @@ export default function Dashboard() {
   }, {} as Record<string, number>);
 
   const stats = [
-    { label: 'TOTAL ROMS', value: totalRoms, icon: '🎮', color: 'glow-green text-primary' },
-    { label: 'STORAGE', value: formatFileSize(totalSize), icon: '💾', color: 'text-retro-cyan' },
-    { label: 'DUPLICATES', value: duplicates, icon: '⚠', color: 'glow-red text-destructive' },
-    { label: 'UNSORTED', value: unsorted, icon: '❓', color: 'glow-amber text-retro-amber' },
+    { label: 'TOTAL ROMS', value: totalRoms, character: 'coin' as const, color: 'glow-green text-primary' },
+    { label: 'STORAGE', value: formatFileSize(totalSize), character: 'mushroom' as const, color: 'text-retro-cyan' },
+    { label: 'DUPLICATES', value: duplicates, character: 'ghost' as const, color: 'glow-red text-destructive' },
+    { label: 'UNSORTED', value: unsorted, character: 'star' as const, color: 'glow-amber text-retro-amber' },
   ];
 
   const consoleValues = Object.values(consoleDist);
@@ -47,14 +47,19 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-pixel text-sm text-primary glow-green">DASHBOARD</h1>
+        <div className="flex items-center gap-3">
+          <PixelCharacter type="hero" size={28} />
+          <h1 className="font-pixel text-sm text-primary glow-green">DASHBOARD</h1>
+        </div>
         <span className="text-xs font-pixel text-muted-foreground animate-blink">● ONLINE</span>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="pixel-border bg-card p-4">
-            <div className="text-2xl mb-1">{stat.icon}</div>
+          <div key={stat.label} className="pixel-border bg-card p-4 hover:bg-muted/20 transition-colors">
+            <div className="flex items-center gap-2 mb-1">
+              <PixelCharacter type={stat.character} size={20} />
+            </div>
             <div className={`font-pixel text-lg ${stat.color}`}>{stat.value}</div>
             <div className="font-pixel text-[8px] text-muted-foreground mt-1">{stat.label}</div>
           </div>
@@ -65,7 +70,10 @@ export default function Dashboard() {
         <div className="pixel-border bg-card p-4">
           <h2 className="font-pixel text-[10px] text-primary mb-4">CONSOLE DISTRIBUTION</h2>
           {Object.keys(consoleDist).length === 0 ? (
-            <p className="font-retro text-sm text-muted-foreground">No data yet</p>
+            <div className="text-center py-6">
+              <PixelCharacter type="ghost" size={32} className="mx-auto mb-2 opacity-30" />
+              <p className="font-retro text-sm text-muted-foreground">No data yet — upload some ROMs!</p>
+            </div>
           ) : (
             <div className="space-y-2">
               {Object.entries(consoleDist).sort((a, b) => b[1] - a[1]).map(([name, count]) => (
@@ -84,7 +92,10 @@ export default function Dashboard() {
         <div className="pixel-border bg-card p-4">
           <h2 className="font-pixel text-[10px] text-primary mb-4">EXTENSION DISTRIBUTION</h2>
           {Object.keys(extDist).length === 0 ? (
-            <p className="font-retro text-sm text-muted-foreground">No data yet</p>
+            <div className="text-center py-6">
+              <PixelCharacter type="coin" size={32} className="mx-auto mb-2 opacity-30" />
+              <p className="font-retro text-sm text-muted-foreground">No data yet</p>
+            </div>
           ) : (
             <div className="space-y-2">
               {Object.entries(extDist).sort((a, b) => b[1] - a[1]).map(([ext, count]) => (
@@ -104,13 +115,16 @@ export default function Dashboard() {
       <div className="pixel-border bg-card p-4">
         <h2 className="font-pixel text-[10px] text-primary mb-4">RECENT UPLOADS</h2>
         {packages.length === 0 ? (
-          <p className="font-retro text-sm text-muted-foreground">No ROM packages uploaded yet.</p>
+          <div className="text-center py-6">
+            <PixelCharacter type="star" size={32} className="mx-auto mb-2 opacity-30" />
+            <p className="font-retro text-sm text-muted-foreground">No ROM packages uploaded yet. Start uploading!</p>
+          </div>
         ) : (
           <div className="space-y-2">
             {packages.slice(0, 5).map((rom) => (
               <div key={rom.id} className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0">
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">🎮</span>
+                  <PixelCharacter type="coin" size={16} animated={false} />
                   <div>
                     <div className="font-retro text-sm text-foreground">{rom.title}</div>
                     <div className="font-mono text-xs text-muted-foreground">{rom.filename}</div>
