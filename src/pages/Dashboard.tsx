@@ -2,6 +2,7 @@ import { useRomPackages } from '@/hooks/useRomPackages';
 import { formatFileSize } from '@/data/mockData';
 import { StatusBadge } from '@/components/StatusBadge';
 import { PixelCharacter } from '@/components/PixelCharacter';
+import { GameQuoteBubble } from '@/components/GameQuoteBubble';
 
 export default function Dashboard() {
   const { data: packages = [], isLoading } = useRomPackages();
@@ -51,7 +52,7 @@ export default function Dashboard() {
           <PixelCharacter type="hero" size={28} />
           <h1 className="font-pixel text-sm text-primary glow-green">DASHBOARD</h1>
         </div>
-        <span className="text-xs font-pixel text-muted-foreground animate-blink">● ONLINE</span>
+        <GameQuoteBubble />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
