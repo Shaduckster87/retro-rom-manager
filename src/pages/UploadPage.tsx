@@ -67,14 +67,11 @@ export default function UploadPage() {
     try {
       // Step 1: Upload to storage
       const storagePath = `uploads/${Date.now()}_${file.name}`;
+      setQueue(prev => prev.map(q => q.id === itemId ? { ...q, progress: 30 } : q));
       const { error: uploadError } = await supabase.storage
         .from('rom-files')
-        .upload(storagePath, file, {
-          onUploadProgress: (p) => {
-            const pct = Math.round((p.loaded / p.total) * 100);
-            setQueue(prev => prev.map(q => q.id === itemId ? { ...q, progress: pct } : q));
-          }
-        });
+        .upload(storagePath, file);
+      setQueue(prev => prev.map(q => q.id === itemId ? { ...q, progress: 100 } : q));
 
       if (uploadError) throw uploadError;
 
